@@ -43,6 +43,109 @@ Return JSON cards for advisor review
 
 ---
 
+## AWS Architecture & Deployment
+
+FinWise runs on **AWS using AgentCore**, a fully managed agentic platform. The architecture separates concerns across four layers: data, compute, application, and model.
+
+### Deployment Layers
+
+```
+┌─────────────────────────────────────────────┐
+│ Data Layer: Amazon S3                       │
+│ • clients/ → client signals (JSON)          │
+│ • skills/*/ → skill definitions (SKILL.md)  │
+│ • Fallback resilience built in              │
+└─────────────────────────────────────────────┘
+                    ↕ (GetObject, PutObject)
+┌──────────────────┬──────────────────────────┐
+│ AWS Lambda       │ AgentCore Gateway        │
+│ • handler.py     │ • Tool Router            │
+│ • Python 3.13    │ • gateway_tools.json     │
+│ • 30s timeout    │ • 5 tools listed         │
+│ • S3 I/O         │                          │
+└──────────────────┴──────────────────────────┘
+                    ↕ (Tool calls & results)
+┌─────────────────────────────────────────────┐
+│ AgentCore Harness (Application)             │
+│ • Instructions: harness_instructions.md     │
+│ • Tools Config: Routes to Gateway           │
+│ • Skills Manager: Progressive S3 loading    │
+│ • Memory: Tracks outcomes                   │
+└─────────────────────────────────────────────┘
+                    ↕ (Prompts & model output)
+┌─────────────────────────────────────────────┐
+│ Amazon Bedrock (Model)                      │
+│ • Claude Sonnet 4.6                         │
+│ • Region: ca-central-1                      │
+│ • Inference profile ARNs configured         │
+└─────────────────────────────────────────────┘
+```
+
+### Layer Details
+
+**Data Layer (S3)**
+- Stores client signals in `clients/` as JSON files
+- Stores skill definitions in `skills/*/SKILL.md` files
+- Lambda reads signals; records outcomes on advisor action
+- Fallback to local JSON if S3 unavailable
+
+**Compute Layer (Lambda + Gateway)**
+- **Lambda** (handler.py): Executes all deterministic tool logic
+  - Python 3.13, 30-second timeout
+  - IAM permissions: `s3:GetObject`, `s3:PutObject`, `s3:ListBucket`
+  - Environment variable: `SIGNALS_BUCKET`
+- **Gateway**: Routes tool invocations from Harness to Lambda
+  - Uses `gateway_tools.json` schema (defines 5 tools)
+  - Returns tool results back to Harness
+
+**Application Layer (AgentCore Harness)**
+- Orchestrates the entire agentic flow
+- **Instructions** (harness_instructions.md): Defines request flow (list_clients → get_signals → apply skills → apply wellness → generate briefs)
+- **Tools Config**: Routes tool calls to Gateway
+- **Skills Manager**: Progressively loads SKILL.md files from S3 (metadata upfront, full text on-demand)
+- **Memory**: Persists advisor outcomes for next run (or falls back to `/tmp`)
+- Max iterations: 20 (enough for full book processing)
+
+**Model Layer (Bedrock)**
+- Claude Sonnet 4.6 inference endpoint
+- Region: ca-central-1
+- Execution role has inference profile ARNs + destination-region model ARNs
+- Runs planner, wellness, and briefing agents
+
+### Request Flow Through AWS
+
+1. **Request arrives** → Harness receives `advisor_id` or `client_id`
+2. **Harness loads instructions** from its configuration
+3. **Harness fetches skills progressively** from S3 (metadata + full text as needed)
+4. **Claude makes tool calls** → Harness invokes Gateway with tool name + args
+5. **Gateway routes to Lambda** → Lambda executes the tool (gets signals, assesses savings, checks qualification, etc.)
+6. **Lambda fetches/writes S3** → Reads client data, writes outcomes
+7. **Tool results return** → Gateway streams back to Harness
+8. **Claude processes results** → Continues reasoning loop, may call more tools
+9. **All agents complete** → Harness merges planner + wellness, applies overrides
+10. **Briefs written** → Briefing agent generates cited narratives
+11. **JSON returned** → Advisor receives ranked cards + briefs
+
+### Configuration
+
+| Component | Setting |
+|---|---|
+| **S3 Bucket** | Region: ca-central-1; env var `SIGNALS_BUCKET` |
+| **Lambda** | Timeout: 30s; Runtime: Python 3.13; IAM: S3 read/write/list |
+| **Gateway** | Tool schema: gateway_tools.json; 5 tools (get_signals, assess_savings, check_qualification, get_outcomes, record_outcome) |
+| **Harness** | Model: us.anthropic.claude-sonnet-4-6; Max iterations: 20; Memory: enabled |
+| **Execution Role** | Bedrock invoke (inference profile ARNs), Gateway invoke, S3 access (GetObject, PutObject, ListBucket) |
+
+### Deployment Steps
+
+1. **S3 (10 min):** Create bucket in ca-central-1; upload clients/ and skills/ folders
+2. **Lambda (10 min):** Create function (Python 3.13), paste handler.py, set SIGNALS_BUCKET env var, configure IAM role
+3. **Gateway (10 min):** Create Gateway, add Lambda target, upload gateway_tools.json schema
+4. **Harness (10 min):** Create Harness (Advanced), point to Gateway, load skills from S3 sources, enable Memory
+5. **Test (5 min):** Run "harness for advisor_id A-7" in Playground
+
+---
+
 ## Agent 1: Planner Agent
 
 ### What It Does
