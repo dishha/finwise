@@ -1,0 +1,14 @@
+[
+  {"name": "list_clients", "description": "List client ids in an advisor's book. Always call this first when given only an advisor_id.",
+   "inputSchema": {"type": "object", "properties": {"advisor_id": {"type": "string"}}, "required": ["advisor_id"]}},
+  {"name": "get_signals", "description": "Derived signals, relationship context and prior advisor outcomes for one client. Every value returned is citable evidence.",
+   "inputSchema": {"type": "object", "properties": {"client_id": {"type": "string"}}, "required": ["client_id"]}},
+  {"name": "assess_savings", "description": "Whether FHSA + HBP-eligible RRSP + liquid savings cover a down payment, and months to target.",
+   "inputSchema": {"type": "object", "properties": {"client_id": {"type": "string"}, "target_price": {"type": "number"}}, "required": ["client_id"]}},
+  {"name": "check_qualification", "description": "Rule-based mortgage qualification (GDS/TDS at the stress-test rate). Deterministic; do not override its result.",
+   "inputSchema": {"type": "object", "properties": {"client_id": {"type": "string"}, "target_price": {"type": "number"}}, "required": ["client_id"]}},
+  {"name": "record_outcome", "description": "Advisor-gated write. Records what the advisor did with a card. Only call when the user explicitly asks to record an outcome.",
+   "inputSchema": {"type": "object", "properties": {"client_id": {"type": "string"}, "card_id": {"type": "string"},
+     "action": {"type": "string", "enum": ["contacted", "not_now", "wrong_opportunity", "wrong_timing", "already_handled", "converted", "followup_scheduled"]},
+     "note": {"type": "string"}}, "required": ["client_id", "card_id", "action"]}}
+]
