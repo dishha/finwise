@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FinWise Architecture</title>
+    <style>
+        :root {
+            --text-primary: #1a1a1a;
+            --text-secondary: #4a4a4a;
+            --bg-primary: #ffffff;
+            --bg-secondary: #f8f8f8;
+            --border: #e0e0e0;
+            --accent: #0066cc;
+            --accent-light: #e6f0ff;
+            --critical: #dc2626;
+            --warning: #d97706;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root:not([data-theme="light"]) {
+                --text-primary: #f5f5f5;
+                --text-secondary: #b0b0b0;
+                --bg-primary: #1a1a1a;
+                --bg-secondary: #2a2a2a;
+                --border: #404040;
+                --accent-light: #1a3a5c;
+            }
+        }
+
+        :root[data-theme="dark"] {
+            --text-primary: #f5f5f5;
+            --text-secondary: #b0b0b0;
+            --bg-primary: #1a1a1a;
+            --bg-secondary: #2a2a2a;
+            --border: #404040;
+            --accent-light: #1a3a5c;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+            color: var(--text-primary);
+            background: var(--bg-primary);
+            line-height: 1.6;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+            font-weight: 500;
+        }
+
+        h2 {
+            font-size: 1.5rem;
+            margin-top: 2.5rem;
+            margin-bottom: 1rem;
+            font-weight: 700;
+            border-bottom: 2px solid var(--accent);
+            padding-bottom: 0.5rem;
+        }
+
+        h3 {
+            font-size: 1.1rem;
+            margin-top: 1.5rem;
+            margin-bottom: 0.75rem;
+            font-weight: 600;
+            color: var(--accent);
+        }
+
+        p {
+            margin-bottom: 1rem;
+            color: var(--text-secondary);
+        }
+
+        ul, ol {
+            margin-left: 2rem;
+            margin-bottom: 1rem;
+            color: var(--text-secondary);
+        }
+
+        li {
+            margin-bottom: 0.5rem;
+        }
+
+        .code-block {
+            background: var(--bg-secondary);
+            border-left: 4px solid var(--accent);
+            padding: 1rem;
+            margin: 1rem 0;
+            font-family: "Monaco", "Courier New", monospace;
+            font-size: 0.9rem;
+            overflow-x: auto;
+            color: var(--text-secondary);
+            border-radius: 4px;
+        }
+
+        figure {
+            margin: 2rem 0;
+            padding: 1.5rem;
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            border: 1px solid var(--border);
+        }
+
+        figure svg {
+            max-width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        figcaption {
+            margin-top: 1rem;
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .section {
+            background: var(--bg-secondary);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1.5rem 0;
+            border-left: 4px solid var(--accent);
+        }
+
+        .key-point {
+            background: var(--accent-light);
+            border-left: 4px solid var(--accent);
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 4px;
+            color: var(--text-primary);
+        }
+
+        .key-point strong {
+            color: var(--accent);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+            font-size: 0.95rem;
+        }
+
+        table th {
+            background: var(--bg-secondary);
+            padding: 0.75rem;
+            text-align: left;
+            font-weight: 600;
+            color: var(--accent);
+            border-bottom: 2px solid var(--border);
+        }
+
+        table td {
+            padding: 0.75rem;
+            border-bottom: 1px solid var(--border);
+            color: var(--text-secondary);
+        }
+
+        .flow-step {
+            display: flex;
+            gap: 1rem;
+            margin: 1rem 0;
+            align-items: flex-start;
+        }
+
+        .flow-number {
+            flex-shrink: 0;
+            width: 2rem;
+            height: 2rem;
+            background: var(--accent);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .flow-content {
+            flex: 1;
+        }
+
+        .flow-content strong {
+            color: var(--accent);
+        }
+
+        svg text {
+            font-size: 12px;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        .card {
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            padding: 1.25rem;
+            border-radius: 8px;
+            border-top: 3px solid var(--accent);
+        }
+
+        .card h4 {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--accent);
+            margin-bottom: 0.5rem;
+        }
+
+        .card p {
+            font-size: 0.9rem;
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏦 FinWise Agent Harness</h1>
+        <p class="subtitle">Architecture & Implementation Guide</p>
+
+        <div class="key-point">
+            <strong>What it does:</strong> FinWise is an agentic readiness harness for bank advisors. It processes client financial signals through three parallel Claude agents (planner, wellness, briefing) to detect life-event opportunities (home purchase, renewal, liquidity, attrition) and produces evidence-backed readiness cards that advisors review before outreach.
+        </div>
+
+        <h2>Core Agentic Flow</h2>
+        <p>The system executes in this precise sequence:</p>
+
+        <figure>
+            <svg viewBox="0 0 1000 400" role="img" aria-label="Complete agentic flow showing how planner and wellness run in parallel, then briefing processes results">
+                <defs>
+                    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+                        <path d="M0,0 L0,6 L9,3 z" fill="currentColor"/>
+                    </marker>
+                    <marker id="arrow-dashed" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+                        <path d="M0,0 L0,6 L9,3 z" fill="currentColor" opacity="0.5"/>
+                    </marker>
+                </defs>
+
+                <!-- INPUT -->
+                <rect x="10" y="160" width="80" height="60" fill="currentColor" opacity="0.1" stroke="currentColor" stroke-width="2" rx="4"/>
+                <text x="50" y="195" text-anchor="middle" font-weight="600" font-size="12">Request:</text>
+                <text x="50" y="210" text-anchor="middle" font-size="10">client_id</text>
+
+                <!-- LOAD DATA -->
+                <line x1="100" y1="190" x2="150" y2="140" stroke="currentColor" stroke-width="2" marker-end="url(#arrow)"/>
+                <line x1="100" y1="190" x2="150" y2="240" stroke="currentColor" stroke-width="2" marker-end="url(#arrow)"/>
+
+                <rect x="150" y="110" width="130" height="60" fill="#dbeafe" stroke="#0284c7" stroke-width="2" rx="4"/>
+                <text x="215" y="135" text-anchor="middle" font-weight="600" font-size="11">Load Client</text>
+                <text x="215" y="150" text-anchor="middle" font-size="10">Raw data from</text>
+                <text x="215" y="162" text-anchor="middle" font-size="10">S3 or local JSON</text>
+
+                <rect x="150" y="210" width="130" height="60" fill="#dbeafe" stroke="#0284c7" stroke-width="2" rx="4"/>
+                <text x="215" y="235" text-anchor="middle" font-weight="600" font-size="11">Get Outcomes</text>
+                <text x="215" y="250" text-anchor="middle" font-size="10">Prior advisor</text>
+                <text x="215" y="262" text-anchor="middle" font-size="10">actions</text>
+
+                <!-- PARALLEL EXECUTION -->
+                <line x1="290" y1="140" x2="340" y2="80" stroke="currentColor" stroke-width="2" marker-end="url(#arrow)"/>
+                <line x1="290" y1="240" x2="340" y2="240" stroke="currentColor" stroke-width="2" marker-end="url(#arrow)"/>
+
+                <!-- PLANNER AGENT (LEFT) -->
+                <rect x="340" y="30" width="150" height="100" fill="#e6f0ff" stroke="#0066cc" stroke-width="2.5" rx="4"/>
+                <text x="415" y="55" text-anchor="middle" font-weight="600" font-size="12">PLANNER</text>
+                <text x="415" y="70" text-anchor="middle" font-size="10">Claude Agent</text>
+                <text x="415" y="85" text-anchor="middle" font-size="10">+ Tools:</text>
+                <text x="415" y="98" text-anchor="middle" font-size="9">get_signals,</text>
+                <text x="415" y="108" text-anchor="middle" font-size="9">assess_savings,</text>
+                <text x="415" y="118" text-anchor="middle" font-size="9">check_qualification</text>
+
+                <!-- WELLNESS AGENT (MIDDLE) -->
+                <rect x="340" y="200" width="150" height="80" fill="#fef3c7" stroke="#d97706" stroke-width="2.5" rx="4"/>
+                <text x="415" y="225" text-anchor="middle" font-weight="600" font-size="12">WELLNESS</text>
+                <text x="415" y="240" text-anchor="middle" font-size="10">Claude Agent</text>
+                <text x="415" y="255" text-anchor="middle" font-size="10">(Risk assessment)</text>
+                <text x="415" y="268" text-anchor="middle" font-size="10">Returns: verdict</text>
+
+                <!-- Dashed line: wellness gets signals -->
+                <line x1="290" y1="170" x2="340" y2="220" stroke="currentColor" stroke-width="1" stroke-dasharray="4,4" marker-end="url(#arrow-dashed)"/>
+                <text x="305" y="190" font-size="9" opacity="0.6">signals</text>
+
+                <!-- Label: Parallel -->
+                <text x="360" y="155" font-size="11" font-weight="600" fill="currentColor">Parallel</text>
+                <text x="355" y="168" font-size="11" font-weight="600" fill="currentColor">(ThreadPool)</text>
+
+                <!-- MERGE -->
+                <line x1="500" y1="80" x2="560" y2="140" stroke="currentColor" stroke-width="2" marker-end="url(#arrow)"/>
+                <line x1="500" y1="240" x2="560" y2="180" stroke="currentColor" stroke-width="2" marker-end="url(#arrow)"/>
+
+                <rect x="560" y="120" width="140" height="80" fill="#fee2e2" stroke="#dc2626" stroke-width="2.5" rx="4"/>
+                <text x="630" y="145" text-anchor="middle" font-weight="600" font-size="11">APPLY WELLNESS</text>
+                <text x="630" y="160" text-anchor="middle" font-size="10">Veto: cap conf ≤0.35</text>
+                <text x="630" y="172" text-anchor="middle" font-size="10">Downgrade: ×0.7</text>
+                <text x="630" y="184" text-anchor="middle" font-size="10">Sort by urgency</text>
+
+                <!-- SORT & FILTER -->
+                <line x1="710" y1="160" x2="760" y2="160" stroke="currentColor" stroke-width="2" marker-end="url(#arrow)"/>
+
+                <rect x="760" y="130" width="100" height="60" fill="#f3f4f6" stroke="#6b7280" stroke-width="2" rx="4"/>
+                <text x="810" y="150" text-anchor="middle" font-weight="600" font-size="11">SORT &</text>
+                <text x="810" y="163" text-anchor="middle" font-size="11">FILTER</text>
+                <text x="810" y="177" text-anchor="middle" font-size="9">urgency_rank,</text>
+                <text x="810" y="186" text-anchor="middle" font-size="9">confidence</text>
+
+                <!-- BRIEFING AGENT -->
+                <line x1="870" y1="160" x2="920" y2="160" stroke="currentColor" stroke-width="2" marker-end="url(#arrow)"/>
+
+                <rect x="920" y="130" width="70" height="60" fill="#e6f0ff" stroke="#0066cc" stroke-width="2" rx="4"/>
+                <text x="955" y="150" text-anchor="middle" font-weight="600" font-size="10">BRIEF</text>
+                <text x="955" y="163" text-anchor="middle" font-size="9">Cited</text>
+                <text x="955" y="173" text-anchor="middle" font-size="9">narratives</text>
+
+                <!-- OUTPUT -->
+                <line x1="1000" y1="160" x2="1040" y2="160" stroke="currentColor" stroke-width="2" marker-end="url(#arrow)"/>
+                <text x="1045" y="165" font-size="11">JSON</text>
+                <text x="1045" y="178" font-size="9">cards[]</text>
+
+                <!-- Vertical separator line -->
+                <line x1="310" y1="10" x2="310" y2="390" stroke="currentColor" opacity="0.2" stroke-width="1" stroke-dasharray="4,4"/>
+                <text x="315" y="355" font-size="9" opacity="0.5">Sequential</text>
+                <text x="315" y="365" font-size="9" opacity="0.5">after parallel</text>
+
+                <!-- Bottom annotation -->
+                <text x="500" y="390" text-anchor="middle" font-size="10" font-weight="500" fill="currentColor">Planner receives client_id + prior outcomes. Wellness receives signal bundle. Both complete, then merge → sort → brief for each card.</text>
+            </svg>
+            <figcaption><strong>Exact agentic flow:</strong> (1) Load client data and prior outcomes. (2) Spawn planner and wellness agents in parallel. (3) Planner analyzes signals + calls tools. (4) Wellness assesses risk independently. (5) Both complete, merge results. (6) Apply wellness override (veto/downgrade). (7) Sort by urgency and confidence. (8) For each card, briefing agent writes cited narrative with grounding check. (9) Return JSON cards for advisor review.</figcaption>
+        </figure>
+
+        <h2>Three Agents (All Claude)</h2>
+
+        <div class="grid">
+            <div class="card">
+                <h4>1. Planner Agent</h4>
+                <p><strong>Role:</strong> Orchestrator & evidence gatherer</p>
+                <p style="margin-top: 0.5rem;"><strong>Input:</strong> client_id + prior_outcomes</p>
+                <p><strong>Tools available:</strong> get_signals, assess_savings, check_qualification</p>
+                <p><strong>Output:</strong> JSON with cards[] containing confidence, timeline, urgency_rank, evidence list</p>
+                <p style="margin-top: 0.5rem; font-size: 0.85rem; color: var(--critical);"><strong>Critical constraint:</strong> Cannot override check_qualification. If qualification fails, confidence capped at 0.7 max.</p>
+            </div>
+
+            <div class="card">
+                <h4>2. Wellness Agent</h4>
+                <p><strong>Role:</strong> Independent risk gatekeeper</p>
+                <p style="margin-top: 0.5rem;"><strong>Input:</strong> Full signal bundle (from get_signals)</p>
+                <p><strong>Output:</strong> Verdict + risk_level + reasons</p>
+                <p><strong>Verdicts:</strong><br>
+                • proceed → no override<br>
+                • downgrade → ×0.7 confidence<br>
+                • veto → confidence capped at 0.35</p>
+                <p style="margin-top: 0.5rem; font-size: 0.85rem;">Runs in parallel with planner. Can reject any opportunity based on cash-flow risk, credit stress, or debt load.</p>
+            </div>
+
+            <div class="card">
+                <h4>3. Briefing Agent</h4>
+                <p><strong>Role:</strong> Narrative writer + evidence validator</p>
+                <p style="margin-top: 0.5rem;"><strong>Input:</strong> Planner card + wellness verdict + merged evidence</p>
+                <p><strong>Output:</strong> Cited brief + grounding check result</p>
+                <p><strong>Constraint:</strong> Every factual sentence ends with [E1], [E2], etc. matching evidence index. Deterministic validator enforces this; retries up to 2x if citations fail.</p>
+                <p style="margin-top: 0.5rem; font-size: 0.85rem;">Runs sequentially after planner & wellness complete.</p>
+            </div>
+        </div>
+
+        <h2>Deterministic Tool Layer</h2>
+        <p><em>No model calls here—all Python. These tools are called by the planner agent and return evidence.</em></p>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Tool</th>
+                    <th>Input</th>
+                    <th>Output (Evidence)</th>
+                    <th>Role</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>get_signals</code></td>
+                    <td>client_id</td>
+                    <td>20+ derived signals (cashflow, FHSA velocity, mortgage status, etc.)</td>
+                    <td>Foundation for all analysis</td>
+                </tr>
+                <tr>
+                    <td><code>assess_savings</code></td>
+                    <td>client_id, target_price</td>
+                    <td>gap, months_to_target, sufficient (bool)</td>
+                    <td>Down payment readiness for home purchase</td>
+                </tr>
+                <tr>
+                    <td><code>check_qualification</code></td>
+                    <td>client_id, target_price</td>
+                    <td>gds, tds, qualifies (bool), rule_based: true</td>
+                    <td><strong>Rule-based gate:</strong> GDS/TDS at stress-test rate. Planner cannot override.</td>
+                </tr>
+                <tr>
+                    <td><code>get_outcomes</code></td>
+                    <td>client_id</td>
+                    <td>Prior advisor actions (not_now, already_handled, etc.)</td>
+                    <td>Suppress re-surfacing unless signal materially changed</td>
+                </tr>
+                <tr>
+                    <td><code>record_outcome</code></td>
+                    <td>client_id, card_id, action, note</td>
+                    <td>Logged event with timestamp</td>
+                    <td>Advisor-gated write. Feedback loop for next run.</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2>Request Flow Step-by-Step</h2>
+
+        <div class="flow-step">
+            <div class="flow-number">1</div>
+            <div class="flow-content">
+                <strong>Receive Request</strong><br>
+                <code>POST /invocations {"client_id": "C-1001", "advisor_id": "A-7"}</code> → main.py entrypoint
+            </div>
+        </div>
+
+        <div class="flow-step">
+            <div class="flow-number">2</div>
+            <div class="flow-content">
+                <strong>Load & Prepare</strong><br>
+                Call <code>load_client()</code> → reads from S3 or local JSON<br>
+                Call <code>get_outcomes()</code> → reads prior advisor actions
+            </div>
+        </div>
+
+        <div class="flow-step">
+            <div class="flow-number">3</div>
+            <div class="flow-content">
+                <strong>Spawn Parallel Agents</strong><br>
+                ThreadPoolExecutor(max_workers=2) starts:<br>
+                • <strong>Thread A:</strong> run_planner(client_id) with prior outcomes<br>
+                • <strong>Thread B:</strong> run_wellness(get_signals(client_id))<br>
+                Both run simultaneously
+            </div>
+        </div>
+
+        <div class="flow-step">
+            <div class="flow-number">4</div>
+            <div class="flow-content">
+                <strong>Planner Executes</strong><br>
+                Claude agent receives system prompt + client_id + prior outcomes<br>
+                Calls <code>get_signals(client_id)</code> → receives signal bundle<br>
+                For each opportunity detected, calls <code>assess_savings()</code> and <code>check_qualification()</code><br>
+                Returns JSON: <code>{"cards": [...], "rationale": "..."}</code>
+            </div>
+        </div>
+
+        <div class="flow-step">
+            <div class="flow-number">5</div>
+            <div class="flow-content">
+                <strong>Wellness Executes</strong><br>
+                Claude agent receives signal bundle<br>
+                Independently assesses: cashflow volatility, credit stress, debt load<br>
+                Returns: <code>{"verdict": "proceed|downgrade|veto", "risk_level": "...", "reasons": [...]}</code>
+            </div>
+        </div>
+
+        <div class="flow-step">
+            <div class="flow-number">6</div>
+            <div class="flow-content">
+                <strong>Wait for Both to Complete</strong><br>
+                <code>planner_f.result(), wellness_f.result()</code> blocks until both threads finish
+            </div>
+        </div>
+
+        <div class="flow-step">
+            <div class="flow-number">7</div>
+            <div class="flow-content">
+                <strong>Apply Wellness Override</strong><br>
+                For each planner card:<br>
+                • If wellness veto: <code>confidence = min(confidence, 0.35)</code><br>
+                • If wellness downgrade: <code>confidence = confidence * 0.7</code><br>
+                • Add <code>wellness_override</code> field to card
+            </div>
+        </div>
+
+        <div class="flow-step">
+            <div class="flow-number">8</div>
+            <div class="flow-content">
+                <strong>Sort Cards</strong><br>
+                Sort by: (urgency_rank, -confidence)<br>
+                Drop cards with confidence &lt; 0.5 unless marked as "why not yet"
+            </div>
+        </div>
+
+        <div class="flow-step">
+            <div class="flow-number">9</div>
+            <div class="flow-content">
+                <strong>Generate Briefs (if requested)</strong><br>
+                For each card, call <code>run_briefing(card, wellness)</code><br>
+                Briefing agent writes 4–6 sentence narrative<br>
+                Grounding validator checks every fact has valid [E#] citation<br>
+                Retry up to 2x if citations fail
+            </div>
+        </div>
+
+        <div class="flow-step">
+            <div class="flow-number">10</div>
+            <div class="flow-content">
+                <strong>Return JSON</strong><br>
+                <code>{"client_id": "C-1001", "advisor_id": "A-7", "cards": [...], "wellness": {...}, "planner_rationale": "..."}</code>
+            </div>
+        </div>
+
+        <h2>The Qualification Gate (Most Critical)</h2>
+
+        <div class="key-point">
+            <strong>Rule-based, non-negotiable:</strong> The <code>check_qualification</code> tool applies Canadian mortgage stress-test rules. It calculates GDS (housing payment / gross income) and TDS (housing + debt / gross income) at a stress-test rate of max(5.25%, current_rate + 2.0%).
+            <br><br>
+            <strong>The constraint:</strong> Planner <em>cannot</em> emit a home_purchase card with confidence > 0.7 if <code>qualifies = false</code>. This protects the client from being pushed into an unaffordable purchase, and protects the advisor from regulatory risk.
+            <br><br>
+            <strong>Why:</strong> Mortgage qualification is not a judgment call. It is a legal and prudential gate. The model can say "ready on savings" or "not yet on savings," but it cannot override the math.
+        </div>
+
+        <h2>The Wellness Veto (Consumer Protection)</h2>
+
+        <div class="section">
+            <h3>When Wellness Vetoes</h3>
+            <p>Wellness independently assesses financial risk. It vetoes when:</p>
+            <ul>
+                <li><strong>Negative cash-flow months:</strong> Any month with surplus < 0</li>
+                <li><strong>High cash-flow variance:</strong> Std dev too high relative to mean</li>
+                <li><strong>Credit stress:</strong> Credit utilization > 50% or missed payments in last 12 months</li>
+                <li><strong>Debt load:</strong> Monthly debt payments > ~35% of net income</li>
+            </ul>
+            <p>Example: Marcus (C-1002) has a renewal opportunity coming in 3 months, but wellness vetoes because: negative cash-flow months (-$1.1k, -$600), high debt ($2.1k/month), and high variance. The card is still shown to the advisor, but confidence is capped at 0.35 and the recommended action becomes "Hold outreach … check in on cash-flow stability first."</p>
+        </div>
+
+        <h2>Data Layer</h2>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Source</th>
+                    <th>Use Case</th>
+                    <th>Location</th>
+                    <th>Fallback</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Local JSON</strong></td>
+                    <td>Demo / development</td>
+                    <td><code>data/sample_clients.json</code></td>
+                    <td>Always available</td>
+                </tr>
+                <tr>
+                    <td><strong>S3</strong></td>
+                    <td>Production (raw data)</td>
+                    <td><code>s3://bucket/clients/{id}.json</code></td>
+                    <td>Falls back to local if unavailable</td>
+                </tr>
+                <tr>
+                    <td><strong>AgentCore Memory</strong></td>
+                    <td>Persistent outcomes</td>
+                    <td>Managed by MEMORY_ID</td>
+                    <td>Falls back to <code>/tmp/outcomes_{id}.json</code></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2>Opportunities (What the Planner Detects)</h2>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Opportunity</th>
+                    <th>Trigger Signals</th>
+                    <th>Tools Required</th>
+                    <th>Key Output</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>home_purchase</strong></td>
+                    <td>housing_intent, preapproval_started, calculator_viewed, fhsa_velocity > 0</td>
+                    <td>assess_savings, check_qualification</td>
+                    <td>months_to_target, qualifies (must be true for conf > 0.7)</td>
+                </tr>
+                <tr>
+                    <td><strong>renewal_refi</strong></td>
+                    <td>renewal_in_months ≤ 6 (urgent if ≤ 3), rate_gap_vs_market > 0</td>
+                    <td>get_signals</td>
+                    <td>renewal window, payment shock estimate</td>
+                </tr>
+                <tr>
+                    <td><strong>liquidity</strong></td>
+                    <td>heloc_inquiries_90d > 0, outbound_transfers pattern, income_stable</td>
+                    <td>get_signals</td>
+                    <td>cash need indicator, borrowing capacity</td>
+                </tr>
+                <tr>
+                    <td><strong>attrition</strong></td>
+                    <td>last_contact_days_ago > 90, low tenure_years, disengagement signals</td>
+                    <td>get_signals</td>
+                    <td>relationship risk score, retention urgency</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2>Demo Clients</h2>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Client</th>
+                    <th>Profile</th>
+                    <th>Key Signals</th>
+                    <th>Expected Card</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>C-1001 (Priya)</strong></td>
+                    <td>34, $168k, 6yr tenure</td>
+                    <td>Stable $4.2k/mo surplus, FHSA $24.5k, preapproval started</td>
+                    <td><strong>home_purchase:</strong> high confidence, ready soon</td>
+                </tr>
+                <tr>
+                    <td><strong>C-1002 (Marcus)</strong></td>
+                    <td>46, $245k, 11yr tenure</td>
+                    <td>Volatile surplus (-$1.1k to +$1.2k), renewal in 3mo, $2.1k debt</td>
+                    <td><strong>renewal_refi:</strong> urgent + wellness veto (cash-flow risk)</td>
+                </tr>
+                <tr>
+                    <td><strong>C-1003 (Dana)</strong></td>
+                    <td>39, $190k, 4yr tenure</td>
+                    <td>Stable $3k/mo surplus, FHSA $16k, savings gap</td>
+                    <td><strong>home_purchase:</strong> "why not yet" (6–9 months to target)</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2>Key Design Constraints</h2>
+
+        <div class="section">
+            <ul>
+                <li><strong>Rule-based qualification gate:</strong> check_qualification is deterministic. Planner cannot override.</li>
+                <li><strong>Independent wellness:</strong> Runs in parallel, can veto any opportunity. Protects consumer.</li>
+                <li><strong>Evidence-grounded briefs:</strong> Every fact cited [E#]. Deterministic grounding validator ensures accuracy.</li>
+                <li><strong>Treat free-text as data:</strong> Product telemetry, advisor notes, prior outcomes are read as data, never as instructions.</li>
+                <li><strong>Prior outcomes shape decisions:</strong> Planner suppresses "not_now" cards unless a signal materially changed.</li>
+                <li><strong>Fallback resilience:</strong> If Memory unavailable, system falls back to local JSON. Harness keeps running.</li>
+            </ul>
+        </div>
+
+        <h2>Environment Configuration</h2>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Variable</th>
+                    <th>Default</th>
+                    <th>Purpose</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><code>MODEL_ID</code></td>
+                    <td>us.anthropic.claude-sonnet-4-20250514</td>
+                    <td>Primary model for planner & briefing agents</td>
+                </tr>
+                <tr>
+                    <td><code>FAST_MODEL_ID</code></td>
+                    <td>Same as MODEL_ID</td>
+                    <td>Optional cheaper model for wellness agent (can save cost)</td>
+                </tr>
+                <tr>
+                    <td><code>SIGNALS_BUCKET</code></td>
+                    <td>(none — use local)</td>
+                    <td>S3 bucket containing clients/ and outcomes/ prefixes</td>
+                </tr>
+                <tr>
+                    <td><code>MEMORY_ID</code></td>
+                    <td>(none — use /tmp)</td>
+                    <td>AgentCore Memory ID for persistent outcomes</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2>Summary</h2>
+
+        <div class="key-point">
+            <strong>FinWise in One Paragraph:</strong>
+            <br>
+            A request arrives with a client_id. The system loads raw client data and prior outcomes, then spawns two Claude agents in parallel: <strong>planner</strong> analyzes signals and calls tools (assess_savings, check_qualification) to detect opportunities, emitting cards with evidence and confidence scores; <strong>wellness</strong> independently assesses risk and returns a verdict (proceed, downgrade, veto). Both complete, results merge, wellness overrides are applied (veto caps confidence at 0.35, downgrade multiplies by 0.7), cards sort by urgency and confidence, and for each card the <strong>briefing</strong> agent writes a 4–6 sentence narrative with [E#] citations validated by a deterministic grounding checker. Output is JSON cards ready for advisor review. Advisor records actions (contacted, not_now, already_handled), which feed back into the next run to suppress or re-surface opportunities based on signal change. Everything is rule-based (qualification), evidence-backed (briefs), and consumer-protective (wellness veto).
+        </div>
+
+    </div>
+</body>
+</html>
