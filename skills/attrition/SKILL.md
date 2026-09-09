@@ -1,21 +1,23 @@
 ---
 name: attrition
-description: Detect relationship attrition risk from sustained outbound transfers and cold contact. Use when outbound_months >= 2 or last_contact_days_ago > 90. This is a retention skill, not a sales skill.
+description: Detect relationship attrition risk from cold contact, low engagement and external credit shopping. Use when last_contact_days_ago > 90, or credit_inquiries_6m >= 2, or email_open_rate < 0.3. This is a retention skill, not a sales skill.
 ---
-# Attrition risk skill (v1.0, default urgency: high)
+# Attrition risk skill (v1.1, default urgency: high)
 
 Emit opportunity `attrition` when the rules below fire.
 
 ## Signals to weigh
-- `outbound_total_6m` > 0 and `outbound_months` >= 2 = sustained money leaving to another institution.
-- `last_contact_days_ago` > 90 = relationship going cold.
+- `last_contact_days_ago` > 90 = relationship going cold; > 180 = strong.
+- `credit_inquiries_6m` >= 2 = the client may be shopping for credit elsewhere.
+- `email_open_rate` < 0.3 = disengagement from the advisor channel.
+- `do_not_contact` = true: emit the card for advisor awareness but set recommended_action to "respect do-not-contact; no outreach" and product_fit to none.
 - Attrition combined with `renewal_in_months` <= 6 is the highest urgency in the whole harness (urgency_rank 1).
 
 ## Timeline
-"now" if outbound transfers are sustained; otherwise 30-60 days.
+"now" if two or more signals fire; otherwise 30-60 days.
 
 ## Product fit
-None. The recommended action is a relationship check-in, never a product push.
+None. The recommended action is a relationship check-in through `preferred_channel`, never a product push.
 
 ## Confidence
 Confidence expresses the risk of the client leaving, not the size of any opportunity.

@@ -1,16 +1,16 @@
 ---
 name: liquidity
-description: Detect a liquidity event, idle cash, or a retirement-transition planning window for a premium client. Use when liquid_savings is large relative to income or age >= 50 with stable surplus.
+description: Detect idle cash, a liquidity event, or a retirement-transition planning window. Use when liquid_savings is large relative to monthly_net_income, or age >= 50 with a stable surplus.
 ---
-# Liquidity and retirement skill (v1.0, default urgency: low)
+# Liquidity and retirement skill (v1.1, default urgency: low)
 
 Emit opportunity `liquidity` when the rules below fire.
 
 ## Signals to weigh
-- High `cashflow_mean_surplus` with growing `liquid_savings` well above normal = idle cash.
-- Large jumps in `liquid_savings` are a proxy for an inflow event (sale, inheritance, bonus).
-- `rrsp_balance` near contribution limits with surplus continuing = non-registered opportunity.
-- `age` >= 50 with stable surplus = pre-retirement planning window.
+- `liquid_savings` greater than roughly 12 x `monthly_net_income` with `cashflow_volatility` LOW = idle cash. Exception: if a home_purchase card is also being emitted, that cash is a down payment, not idle. Do not double-count.
+- `rrsp_balance` growing with surplus continuing = registered vs non-registered planning.
+- `age` >= 50 with `income_stability` SALARIED and positive `monthly_surplus` = pre-retirement planning window.
+- `rewards_tier` GOLD or higher indicates an engaged premium relationship; mention it as context only.
 
 ## Timeline
 Usually 6-18 months. This is a planning conversation, not an urgent one.
